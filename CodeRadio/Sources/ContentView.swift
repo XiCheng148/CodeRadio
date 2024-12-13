@@ -18,10 +18,15 @@ struct NowPlaying: Codable {
 struct RadioResponse: Codable {
     let now_playing: NowPlaying
     let song_history: [HistoryItem]
+    let listeners: Listeners
 }
 
 struct HistoryItem: Codable {
     let song: Song
+}
+
+struct Listeners: Codable {
+    let current: Int
 }
 
 public class RadioPlayer: ObservableObject {
@@ -34,6 +39,7 @@ public class RadioPlayer: ObservableObject {
     @Published public var elapsed: Int = 0
     @Published public var isLoading = true
     public var hasInitialized = false
+    @Published public var currentListeners: Int = 0
     
     private var player: AVPlayer?
     private var progressTimer: Timer?
@@ -94,6 +100,7 @@ public class RadioPlayer: ObservableObject {
                     self?.elapsed = response.now_playing.elapsed
                     self?.progress = Double(response.now_playing.elapsed) / Double(response.now_playing.duration)
                     self?.history = response.song_history.map { $0.song }
+                    self?.currentListeners = response.listeners.current
                     completion?()
                 }
             }
@@ -226,7 +233,7 @@ public struct ContentView: View {
                 } placeholder: {
                     Color.gray
                 }
-                .frame(width: 200, height: 200)
+                .frame(width: 196, height: 196)
                 .cornerRadius(8)
                 .onTapGesture(count: 2) {
                     player.downloadArtwork(from: artURL)
@@ -244,15 +251,18 @@ public struct ContentView: View {
             VStack {
                 Text(player.currentSong?.title ?? "Loading...")
                     .font(.headline)
+                    .lineLimit(1)
                 Text(player.currentSong?.artist ?? "")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+                    .lineLimit(1)
             }
+            .frame(maxWidth: .infinity)
             
             // 进度条和时间
             VStack(spacing: 4) {
                 ProgressView(value: player.progress)
-                    .frame(width: 200)
+                    .frame(maxWidth: .infinity)
                     .tint(Color.accentColor)
                 
                 HStack {
@@ -264,11 +274,24 @@ public struct ContentView: View {
                         .font(.caption)
                         .monospacedDigit()
                 }
-                .frame(width: 200)
             }
             
             // 控制按钮
-            HStack {
+            HStack(alignment: .center) {
+                // 左侧听众数量显示
+                HStack(spacing: 4) {
+                    Image(systemName: "person.fill")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("\(player.currentListeners)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .frame(width: 50)
+                
+                Spacer()
+                
+                // 中间播放暂停按钮
                 PlayPauseButton
                     .onHover { hovering in
                         if hovering {
@@ -278,11 +301,18 @@ public struct ContentView: View {
                         }
                     }
                 
-                Slider(value: Binding(
-                    get: { player.volume },
-                    set: { player.setVolume($0) }
-                ))
-                .frame(width: 100)
+                Spacer()
+                
+                // 右侧音量控制
+                Slider(
+                    value: Binding(
+                        get: { player.volume },
+                        set: { player.setVolume($0) }
+                    ),
+                    in: 0.0...1.0,
+                    step: 0.2
+                )
+                .frame(width: 50)
                 .tint(Color.accentColor)
                 .onHover { hovering in
                     if hovering {
@@ -292,10 +322,11 @@ public struct ContentView: View {
                     }
                 }
             }
+            .frame(maxWidth: .infinity)
             
             // 历史记录
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 8) {
+                LazyVStack(alignment: .leading, spacing: 12) {
                     ForEach(player.history, id: \.text) { song in
                         HStack(spacing: 8) {
                             AsyncImage(url: URL(string: song.art)) { image in
@@ -321,12 +352,14 @@ public struct ContentView: View {
                             VStack(alignment: .leading) {
                                 Text(song.title)
                                     .font(.caption)
+                                    .lineLimit(1)
                                 Text(song.artist)
                                     .font(.caption2)
                                     .foregroundColor(.secondary)
+                                    .lineLimit(1)
                             }
                         }
-                        .padding(.vertical, 4)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
                 .padding(.vertical, 4)
@@ -358,8 +391,8 @@ public struct ContentView: View {
             }
             .padding(.top, 2)
         }
-        .padding()
-        .frame(width: 240)
+        .padding(12)
+        .frame(width: 220)
         .onAppear {
             if player.currentSong == nil {
                 player.fetchNowPlaying()
