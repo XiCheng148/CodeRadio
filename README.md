@@ -9,7 +9,7 @@
 
 🎵 24/7 music designed for coding, now in your mac!
 
-A command line music radio client for https://coderadio.freecodecamp.org ([about](https://www.freecodecamp.org/news/code-radio-24-7/)), written in Swift.
+A menu bar music radio client for https://coderadio.freecodecamp.org ([about](https://www.freecodecamp.org/news/code-radio-24-7/)), written in Swift.
 
 ![screenshot](./.github/images/screenshot.png)
 
@@ -18,9 +18,9 @@ A command line music radio client for https://coderadio.freecodecamp.org ([about
 - Download prebuilt binary from [GitHub release page](https://github.com/XiCheng148/CodeRadio/releases).
 - enjoy~
 
-## 许可证
+## License
 
-本项目基于 MIT 许可证开源。详见 [LICENSE.txt](LICENSE.txt) 文件。
+This project is licensed under the MIT License. See [LICENSE](LICENSE) file for details.
 
 
 
