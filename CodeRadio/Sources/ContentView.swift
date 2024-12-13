@@ -136,6 +136,15 @@ public class RadioPlayer: ObservableObject {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
+        content.sound = .default
+        
+        // 设置通知的图标
+        if let bundleIdentifier = Bundle.main.bundleIdentifier {
+            content.userInfo = [
+                "NSApplicationBundleIdentifier": bundleIdentifier,
+                "NSApplicationName": "CodeRadio"
+            ]
+        }
         
         let request = UNNotificationRequest(
             identifier: UUID().uuidString,
@@ -143,9 +152,9 @@ public class RadioPlayer: ObservableObject {
             trigger: nil
         )
         
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert]) { granted, _ in
-            if granted {
-                UNUserNotificationCenter.current().add(request)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("发送通知失败: \(error.localizedDescription)")
             }
         }
     }
@@ -175,7 +184,7 @@ public struct ContentView: View {
                 Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
                     .font(.system(size: 15, weight: .heavy))
                     .foregroundColor(.white)
-                    .offset(x: player.isPlaying ? 0 : 2) // 播放图标稍微偏右以视觉居中
+                    .offset(x: player.isPlaying ? 0 : 2)
             }
             .shadow(radius: 2)
             .contentShape(Circle())
@@ -184,7 +193,6 @@ public struct ContentView: View {
         .padding(.horizontal)
     }
     
-    // 修改滚动指示器实现
     private var ScrollIndicator: some View {
         VStack(spacing: 0) {
             // 顶部分割线
@@ -193,7 +201,7 @@ public struct ContentView: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .frame(height: 1)  // 减小高度
+            .frame(height: 1)
             
             Spacer()
             
@@ -203,7 +211,7 @@ public struct ContentView: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .frame(height: 1)  // 减小高度
+            .frame(height: 1)
         }
     }
     

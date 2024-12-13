@@ -7,18 +7,22 @@ let project = Project(
             name: "CodeRadio",
             destinations: .macOS,
             product: .app,
-            bundleId: "io.tuist.CodeRadio",
+            bundleId: "com.yourname.CodeRadio",
             deploymentTargets: .macOS("13.5"),
             infoPlist: .extendingDefault(with: [
                 "NSAppTransportSecurity": [
                     "NSAllowsArbitraryLoads": true
                 ],
-                "NSUserNotificationAlertStyle": "alert",
+                "NSUserNotificationAlertStyle": "banner",
+                "NSUserNotificationDefaultSoundName": "NSUserNotificationDefaultSoundName",
                 "UILaunchStoryboardName": "",
                 "UISceneConfigurations": [:],
                 "NSMainStoryboardFile": "",
                 "NSPrincipalClass": "NSApplication",
-                "LSUIElement": true
+                "LSUIElement": true,
+                "CFBundleIconFile": "AppIcon",
+                "CFBundleIconName": "AppIcon",
+                "CFBundleDisplayName": "CodeRadio"
             ]),
             sources: ["CodeRadio/Sources/**"],
             resources: ["CodeRadio/Resources/**"],
